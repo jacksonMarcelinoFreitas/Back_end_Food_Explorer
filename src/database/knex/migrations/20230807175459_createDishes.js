@@ -1,4 +1,6 @@
-//npx knex migrate:latest -- criar a migrate
+//npx knex migrate:make createDishes -- cria a migrate
+//npx knex migrate:latest -- executa a migrate
+//npm run migrate -- script criado para executar a migrate
 
 exports.up = knex => knex.schema.createTable("dishes", table => {
   table.increments("id");
