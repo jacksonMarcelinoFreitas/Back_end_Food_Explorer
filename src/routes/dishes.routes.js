@@ -1,20 +1,20 @@
 //importa o Router da biblioteca
 const Router = require('express');
-const UsersController = require('../controllers/UsersController');
+const DishesController = require('../controllers/DishesController');
 
 //inicializa a rota
-const usersRoutes = Router();
+const dishesRoutes = Router();
 
 //instacia a classe do controller
-const usersController = new UsersController();
+const dishesController = new DishesController();
 
 //cria a rota somente com a barra pois no index.js já contem a rota
 //atribui-se a reponsabilidade de gerir os dados ao controller
-usersRoutes.post("/user_id", usersController.create);
-usersRoutes.put("/:id", usersController.update);
+dishesRoutes.post("/:user_id", dishesController.create);
+// dishesRoutes.put("/:id", dishesController.update);
 
 //exporta
-module.exports = usersRoutes;
+module.exports = dishesRoutes;
 
 
 //Midleware
