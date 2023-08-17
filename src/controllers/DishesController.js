@@ -1,12 +1,14 @@
 const knex = require("../database/knex");
 
 class DishesController{
+
   async create(request, response){
-    const {name, price, orders, isLiked, description, image, ingredients} = request.body;
+
+    const { name, price, orders, isLiked, description, image, ingredients } = request.body;
     const user_id = request.user.id;
 
     //ao fazer o insert o knex tras o código id gerado para o registro
-    const [dish_id] = await knex("dishes").insert({
+    const [ dish_id ] = await knex("dishes").insert({
       name,
       price,
       orders,
@@ -31,21 +33,30 @@ class DishesController{
   }
 
   async update(request, response){
+
     const {name, price, orders, isLiked, description, image, category } = request.body;
     const { id } = request.params;
     const { user_id } = request.user.id;
 
     //validar se está vazio
-    await knex("dishes").update({name, price, orders, isLiked, description, image, category}).where({id});
+    await knex("dishes").update({
+      name,
+      price,
+      orders,
+      isLiked,
+      description,
+      image,
+      category
+    }).where({id});
 
     return response.json();
   }
 
   //método para mostrar um dish somente e seus ingredientes
   async show(resquest, response){
-    const {id} = resquest.params;
+    const id = resquest.params;
 
-    const dish = await knex("dishes").where({id}).first();
+    const dish = await knex("dishes").where(id).first();
     const ingredients = await knex("ingredients").where({dish_id: id}).orderBy("name");
 
     return response.json({
@@ -56,6 +67,7 @@ class DishesController{
 
   //deletar dishes e ingredients em cascata
   async delete(request, response){
+
     const {id} = request.params;
 
     await knex("dishes").where({id}).delete();
@@ -64,6 +76,7 @@ class DishesController{
   }
 
   async index(request, response) {
+
     const { name, ingredients } = request.query;
 
     const user_id = request.user.id;
@@ -93,8 +106,9 @@ class DishesController{
 
     const userIngredients = await knex("ingredients").where({user_id});
     const ingredientsWithDishes = dishes.map(dish => {
-      const dishIngredients = userIngredients.filter(ingredient => ingredient.dish_id === dish.id);
-
+      const dishIngredients = userIngredients.filter(
+        ingredient => ingredient.dish_id === dish.id
+      );
       return{
         ...dishes,
         ingredients: dishIngredients

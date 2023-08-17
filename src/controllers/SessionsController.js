@@ -1,11 +1,13 @@
-const knex = require("../database/knex");
 const AppError = require("../utils/appError");
-const {compare} = require("bcryptjs");
 const authConfig = require("../configs/auth");
+const knex = require("../database/knex");
 const { sign } = require("jsonwebtoken");
+const {compare} = require("bcryptjs");
 
 class SessionsController {
+
   async create(request, response){
+
     const { email, password } = request.body;
 
     //buscando todos os dados do usuário

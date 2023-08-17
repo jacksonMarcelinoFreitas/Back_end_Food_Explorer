@@ -1,7 +1,6 @@
-//importa o Router da biblioteca
-const Router = require('express');
-const UsersController = require('../controllers/UsersController');
 const ensureAuthenticated = require('../middlewares/ensureAuthenticated');
+const UsersController = require('../controllers/UsersController');
+const Router = require('express'); //importa o Router da biblioteca
 
 //inicializa a rota
 const usersRoutes = Router();
@@ -14,6 +13,9 @@ const usersController = new UsersController();
 //não se faz mais necessário colocar o id do usuário diretamente na rota, uma vez que o middleware de autenticação ja tem ele
 usersRoutes.post("/", usersController.create);
 usersRoutes.put("/", ensureAuthenticated, usersController.update);
+usersRoutes.delete("/:id", usersController.delete);
+usersRoutes.get("/:id", usersController.show);
+usersRoutes.get("/", usersController.index);
 
 //exporta
 module.exports = usersRoutes;

@@ -1,10 +1,8 @@
 require('express-async-errors');
 
 const migrations = require("./database/sqlite/migrations");
-
 //importa a classe para mensagens de erro
 const AppError = require('./utils/appError');
-
 //importa o express
 const express = require("express");
 
@@ -12,6 +10,7 @@ const uploadConfig = require("./configs/upload");
 
 //importa todas as rotas de index
 const routes = require("./routes");
+
 const { request } = require('./routes/users.routes');
 
 //inicializa o express

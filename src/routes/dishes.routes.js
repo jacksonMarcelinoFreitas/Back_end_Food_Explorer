@@ -1,15 +1,15 @@
-//importa o Router da biblioteca
-const Router = require('express');
-const DishesController = require('../controllers/DishesController');
+
 const DishesImagesController = require('../controllers/DishesImagesController');
 const ensureAuthenticated = require('../middlewares/ensureAuthenticated');
+const Router = require('express'); //importa o Router da biblioteca
+const DishesController = require('../controllers/DishesController');
 
-const multer = require("multer");
 const uploadConfig = require("../configs/upload");
+const multer = require("multer");
 
 //inicializa a rota
-const dishesRoutes = Router();
 const upload = multer(uploadConfig.MULTER);
+const dishesRoutes = Router();
 
 //instacia a classe do controller
 const dishesController = new DishesController();

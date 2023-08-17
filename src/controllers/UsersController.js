@@ -1,8 +1,9 @@
+const sqliteConnection = require("../database/sqlite");
 const { hash, compare } = require("bcryptjs");
 const AppError = require("../utils/appError");
-const sqliteConnection = require("../database/sqlite");
 
 class UsersController {
+
   async create(request, response){
     //pego os valores vindos do corpo
     const {name, email, password, isAdmin} = request.body;
@@ -21,7 +22,26 @@ class UsersController {
     return response.status(201).json();
   }
 
+  async index(request, response){
+    const database = await sqliteConnection();
+
+    const user = await database.all("SELECT id, name, email, created_at FROM USERS");
+
+    return response.json(user)
+  }
+
+  async show(request, response){
+    const { id } = request.params;
+
+    const database = await sqliteConnection();
+
+    const user = await database.get("SELECT id, name, email, created_at FROM USERS WHERE id = (?)", [id]);
+
+    return response.json(user)
+  }
+
   async update(request, response){
+
     const { name, email, isAdmin, password, old_password }  = request.body;
     const user_id = request.user.id;
 
@@ -69,10 +89,23 @@ class UsersController {
     isAdmin = ?,
     password = ?,
     updated_at = DATETIME('now')
-    WHERE id = ? `, [user.name, user.email, user.isAdmin, user.password, id]);
+    WHERE id = ? `, [user.name, user.email, user.isAdmin, user.password, user.id]);
 
     return response.status(200).json();
 
+  }
+
+  async delete(resquest, response){
+    const { id } = resquest.params;
+
+    const database = await sqliteConnection();
+    const checkUserExists = await database.get("SELECT * FROM users WHERE id = (?)", [id])
+
+    if(checkUserExists){
+      await database.run("DELETE FROM users WHERE id = (?)", [id])
+    }
+
+    return response.json();
   }
 
 }

@@ -5,7 +5,8 @@ class IngredientsController{
     // const { name } = request.body;
     const { dish_id } = request.params;
 
-    const ingredients = await knex("ingredients").where({dish_id}).orderBy("name");
+    const ingredients = await knex("ingredients")
+      .where({dish_id}).orderBy("name");
 
     return response.json(
       ingredients

@@ -1,22 +1,23 @@
-const knex = require("../database/knex");
-const AppError = require("../utils/appError");
 const DiskStorage = require("../providers/DiskStorage");
+const AppError = require("../utils/appError");
+const knex = require("../database/knex");
 
 class DishesImagesController {
   async update(request, response){
-    const id = request.params;
-    const user_id = request.user.id;
+
     const imageFilename = request.file.filename;
+    const user_id = request.user.id;
+    const id = request.params;
 
     const diskStorage = new DiskStorage();
 
     //busca pelo prato
     const dish = await knex("dishes")
-    .where(id).first();
+      .where(id).first();
 
     // busca pelo usuário para autenticar
     const user = await knex("users")
-    .where({id: user_id}).first();
+      .where({id: user_id}).first();
 
     if(!user){
       throw new AppError("Somente usuários autenticados podem mudar a imagem!", 401)

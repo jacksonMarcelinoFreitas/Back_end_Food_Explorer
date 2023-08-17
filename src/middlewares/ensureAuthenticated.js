@@ -1,8 +1,9 @@
-const {verify} = require("jsonwebtoken");
 const AppError = require("../utils/appError");
 const authConfig = require("../configs/auth");
+const { verify } = require("jsonwebtoken");
 
 function ensureAuthentication(request, response, next){
+
   const authHeader = request.headers.authorization;
 
   if(!authHeader){
@@ -13,7 +14,6 @@ function ensureAuthentication(request, response, next){
   const [bearer,token] = authHeader.split(" ");
 
   // console.log(`Bearer: ${bearer}\nToken: ${token}`)
-
 
   try{
   const {sub: user_id} = verify(token, authConfig.jwt.secret);
