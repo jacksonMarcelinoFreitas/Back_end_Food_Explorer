@@ -4,17 +4,16 @@ class DishesController{
 
   async create(request, response){
 
-    const { name, price, orders, isLiked, description, image, ingredients } = request.body;
+    const { name, price, description, image, ingredients, categories} = request.body;
     const user_id = request.user.id;
 
-    //ao fazer o insert o knex tras o código id gerado para o registro
+    //ao fazer o insert o knex tras o código id gerado para o registro de dish
     const [ dish_id ] = await knex("dishes").insert({
       name,
       price,
-      orders,
-      isLiked,
       description,
       image,
+      categorie_id: categories,
       user_id
     });
 
@@ -34,35 +33,66 @@ class DishesController{
 
   async update(request, response){
 
-    const {name, price, orders, isLiked, description, image, category } = request.body;
+    const { name, image, price, description, categorie, ingredients } = request.body;
     const { id } = request.params;
-    const { user_id } = request.user.id;
+    const {  id: user_id  } = request.user;
 
-    //validar se está vazio
+    const ingredientsUpdate = ingredients.map(ingredient => {
+      return {
+        name: ingredient,
+        user_id,
+        dish_id: id
+      };
+    });
+
+    console.log(ingredientsUpdate);
+
+    (async function replaceIngredients() {
+
+      await knex('ingredients')
+          .where('dish_id', id)
+          .del();
+
+      await knex('ingredients')
+      .insert(ingredientsUpdate);
+
+    })();
+
+
     await knex("dishes").update({
       name,
-      price,
-      orders,
-      isLiked,
-      description,
       image,
-      category
+      price,
+      categorie_id: categorie,
+      description,
     }).where({id});
 
     return response.json();
   }
 
   //método para mostrar um dish somente e seus ingredientes
-  async show(resquest, response){
-    const id = resquest.params;
+  async show(request, response){
+    try {
 
-    const dish = await knex("dishes").where(id).first();
-    const ingredients = await knex("ingredients").where({dish_id: id}).orderBy("name");
+      const { id } = request.params;
 
-    return response.json({
-      ...dish,
-      ingredients
-    });
+      const dish = await knex("dishes").where({ id }).first();
+
+      if (!dish) {
+          return response.status(404).json({ error: "Dish not found" });
+      }
+
+      const ingredients = await knex("ingredients").where({ dish_id: id }).orderBy("name");
+
+      return response.json({
+          dish,
+          ingredients
+      });
+
+    } catch (error) {
+        console.error(error);
+        return response.status(500).json({ error: "Internal Server Error" });
+    }
   }
 
   //deletar dishes e ingredients em cascata

@@ -5,20 +5,29 @@ const AppError = require("../utils/appError");
 class UsersController {
 
   async create(request, response) {
-    const { name, email, password } = request.body;
+    try {
+      const { name, email, password } = request.body;
 
-    const database = await sqliteConnection();
-    const checkUserExists = await database.get("SELECT * FROM users WHERE email = (?)", [email])
+      const database = await sqliteConnection();
+      const checkUserExists = await database.get("SELECT * FROM users WHERE email = (?)", [email]);
 
-    if (checkUserExists) {
-      throw new AppError("Este email já está em uso!");
+      if(checkUserExists){
+        throw new AppError("Este email já está em uso!");
+      }
+
+      const hashedPassword = await hash(password, 8);
+
+      await database.run("INSERT INTO users (name, email, password, isAdmin) VALUES (?, ?, ?, ?)", [name, email, hashedPassword]);
+
+      return response.status(201).json("Usuário criado com sucesso!");
+
+    }catch(error){
+
+      console.error(error);
+      return response.status(400).json({ error: error.message  });
+
     }
 
-    const hashedPassword = await hash(password, 8);
-
-    await database.run("INSERT INTO users (name, email, password, isAdmin) VALUES (?, ?, ?, ?)", [name, email, hashedPassword]);
-
-    return response.status(201).json();
   }
 
 
@@ -26,6 +35,10 @@ class UsersController {
     const database = await sqliteConnection();
 
     const user = await database.all("SELECT id, name, email, created_at FROM USERS");
+
+    if(!user){
+      return response.json({"message":"Não foram encontrados usuários no sistema."})
+    }
 
     return response.json(user)
   }
@@ -36,6 +49,10 @@ class UsersController {
     const database = await sqliteConnection();
 
     const user = await database.get("SELECT id, name, email, created_at FROM USERS WHERE id = (?)", [id]);
+
+    if(!user){
+      return response.json("Este usuário não foi encontrado no sistema.");
+    }
 
     return response.json(user)
   }

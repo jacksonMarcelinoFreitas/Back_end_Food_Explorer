@@ -1,45 +1,33 @@
 const migrations = require("./database/sqlite/migrations");
-//importa a classe para mensagens de erro
-const AppError = require('./utils/appError');
-//importa o express
-const express = require("express");
-
 const uploadConfig = require("./configs/upload");
-
+const AppError = require('./utils/appError');
+const express = require("express");
 const cors = require("cors");
 
-//importa todas as rotas de index
 const routes = require("./routes");
 
-const { request } = require('./routes/users.routes');
+// const { request } = require('./routes/users.routes');
 
-//inicializa o express
 const app = express();
 app.use(cors());
-
-//define o envio no formato JSON
 app.use(express.json());
-
 app.use("/files", express.static(uploadConfig.UPLOADS_FOLDER));
-
-//define as rotas a ser utilizadas
 app.use(routes);
 
 //Faz a conexão com o banco, e executa a migration
 migrations();
 
-
 //tratamento de excessões
 app.use((error, request, response, next) => {
   //verificar se é erro do lado do Cliente
+  console.log(error);
+
   if(error instanceof AppError) {
     return response.status(error.statusCode).json({
       status: "error",
       message: error.message
     });
   }
-
-  console.log(error);
 
   return response.status(500).json({
     status: "error",
@@ -48,10 +36,8 @@ app.use((error, request, response, next) => {
 
 })
 
-//define a porta
 const PORT = 3333;
 
-//coloca a porta e uma mensagem
 app.listen(PORT, () => console.log(`Server is running on Port ${PORT}`));
 
 

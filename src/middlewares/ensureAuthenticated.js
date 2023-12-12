@@ -13,19 +13,22 @@ function ensureAuthentication(request, response, next){
   //formatar o Bearer
   const [bearer,token] = authHeader.split(" ");
 
-  // console.log(`Bearer: ${bearer}\nToken: ${token}`)
-
   try{
-  const {sub: user_id} = verify(token, authConfig.jwt.secret);
+    const {sub: user_id} = verify(token, authConfig.jwt.secret);
 
-  //inserindo dentro de request o valor do id do usuário
-  request.user = {
-    id : Number(user_id)
-  }
+    //inserindo dentro de request o valor do id do usuário
+    request.user = {
+      id : Number(user_id)
+    }
 
-  return next();
+    console.log(request.user.id)
+
+    return next();
+
   }catch{
+
     throw new AppError("JWT Token inválido", 401);
+
   }
 }
 

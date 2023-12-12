@@ -11,4 +11,3 @@ class AppError {
 module.exports = AppError;
 
 // Classe responsável de devolver uma mensagem e um status code no tratamento de excessões
-//

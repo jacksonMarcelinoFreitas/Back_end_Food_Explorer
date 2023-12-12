@@ -5,34 +5,40 @@ const { sign } = require("jsonwebtoken");
 const {compare} = require("bcryptjs");
 
 class SessionsController {
-
   async create(request, response){
+    try{
+      const { email, password } = request.body;
 
-    const { email, password } = request.body;
+      //buscando todos os dados do usuário
+      const user = await knex("users").where({ email }).first();
 
-    //buscando todos os dados do usuário
-    const user = await knex("users").where({ email }).first();
+      if(!user){
+        throw new AppError("E-mail e/ou senha incorreta", 401);
+      }
 
-    if(!user){
-      throw new AppError("E-mail e/ou senha incorreta", 401);
+      //comparando senhas
+      const passwordMatched = await compare(password, user.password);
+
+      if(!passwordMatched){
+        throw new AppError("E-mail e/ou senha incorreta", 401);
+      }
+
+      const { secret, expiresIn } = authConfig.jwt;
+
+      //criar o token
+      const token = sign({}, secret, {
+        subject: String(user.id),
+        expiresIn
+      })
+
+      return response.json({ user, token })
+
+    }catch(error){
+
+      console.log(error);
+      return response.status(400).json({error:error.message})
+
     }
-
-    //comparando senhas
-    const passwordMatched = await compare(password, user.password);
-
-    if(!passwordMatched){
-      throw new AppError("E-mail e/ou senha incorreta", 401);
-    }
-
-    const { secret, expiresIn } = authConfig.jwt;
-
-    //criar o token
-    const token = sign({}, secret, {
-      subject: String(user.id),
-      expiresIn
-    })
-
-    return response.json({ user, token })
   }
 
 }
