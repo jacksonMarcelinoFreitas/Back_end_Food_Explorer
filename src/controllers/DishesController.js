@@ -4,7 +4,7 @@ class DishesController{
 
   async create(request, response){
 
-    const { name, price, description, image, ingredients, categories} = request.body;
+    const { name, price, description, image, ingredients, categories } = request.body;
     const user_id = request.user.id;
 
     //ao fazer o insert o knex tras o código id gerado para o registro de dish
@@ -105,6 +105,7 @@ class DishesController{
     return response.json();
   }
 
+  //tras os pratos e seus ingrdientes para o usuário autenticado
   async index(request, response) {
 
     const { name, ingredients } = request.query;
@@ -114,6 +115,7 @@ class DishesController{
     let dishes;
 
     if (ingredients) {
+      console.log(ingredients)
       const filterIngredients = ingredients.split(',').map(tag => tag.trim());
 
       dishes = await knex("ingredients")

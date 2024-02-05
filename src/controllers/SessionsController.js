@@ -36,7 +36,7 @@ class SessionsController {
     }catch(error){
 
       console.log(error);
-      return response.status(400).json({error:error.message})
+      return response.status(403).json({error:error.message})
 
     }
   }
