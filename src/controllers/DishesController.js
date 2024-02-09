@@ -1,24 +1,39 @@
 const knex = require("../database/knex");
+const DiskStorage = require("../providers/DiskStorage");
 
 class DishesController{
 
   async create(request, response){
 
-    const { name, price, description, image, ingredients, categories } = request.body;
-    const user_id = request.user.id;
+    const { name, price, description, ingredients, categorie_id } = request.body;
+    const ingredientsArray = ingredients.split(',');
+    const imageDishFilename = request.file.filename;
+    const user_id = request.user.id; 
+
+    const diskStorage = new DiskStorage(); 
+
+    // busca pelo usuário para autenticar
+    const user = await knex("users")
+      .where({id: user_id}).first();
+
+    if(!user){
+      throw new AppError("Somente usuários autenticados podem cadastrar pratos!", 401)
+    }
+
+    const filename = await diskStorage.saveFile(imageDishFilename);
 
     //ao fazer o insert o knex tras o código id gerado para o registro de dish
     const [ dish_id ] = await knex("dishes").insert({
       name,
       price,
       description,
-      image,
-      categorie_id: categories,
+      image: filename, 
+      categorie_id,
       user_id
     });
 
     //mapeando os ingredientes, criando um novo array que contém tanto o id do prato quanto o ingrediente
-    const ingredientsInsert = ingredients.map(ingredient => {
+    const ingredientsInsert = ingredientsArray.map(ingredient => {
       return {
         dish_id,
         user_id,

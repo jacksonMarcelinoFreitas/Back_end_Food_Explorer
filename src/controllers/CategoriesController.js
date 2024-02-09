@@ -5,8 +5,6 @@ class CategoriesController{
 
     const categories = await knex("categories").orderBy("id");
 
-    console.log(categories);
-
     return response.json(
       categories
     );
