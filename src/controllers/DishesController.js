@@ -6,13 +6,13 @@ class DishesController{
   async create(request, response){
 
     const { name, price, description, ingredients, categorie_id } = request.body;
-    const ingredientsArray = ingredients.split(',');
     const imageDishFilename = request.file.filename;
     const user_id = request.user.id; 
 
+    const ingredientsArray = ingredients.split(',');
+
     const diskStorage = new DiskStorage(); 
 
-    // busca pelo usuário para autenticar
     const user = await knex("users")
       .where({id: user_id}).first();
 
@@ -22,7 +22,7 @@ class DishesController{
 
     const filename = await diskStorage.saveFile(imageDishFilename);
 
-    //ao fazer o insert o knex tras o código id gerado para o registro de dish
+    //first insert dish
     const [ dish_id ] = await knex("dishes").insert({
       name,
       price,
@@ -32,7 +32,7 @@ class DishesController{
       user_id
     });
 
-    //mapeando os ingredientes, criando um novo array que contém tanto o id do prato quanto o ingrediente
+    //after insert ingredients array
     const ingredientsInsert = ingredientsArray.map(ingredient => {
       return {
         dish_id,
@@ -43,18 +43,47 @@ class DishesController{
 
     await knex("ingredients").insert(ingredientsInsert);
 
-    return response.json();
+    return response.status(201).json('Dish created with success!');
   }
 
   async update(request, response){
 
-    const { name, image, price, description, categorie, ingredients } = request.body;
-    const { id } = request.params;
-    const {  id: user_id  } = request.user;
+    const { name, price, description, categorie_id, ingredients } = request.body;
 
-    const ingredientsUpdate = ingredients.map(ingredient => {
+    const imageDishFilename = request.file?.filename
+
+    const { id } = request.params;
+    const { id: user_id } = request.user;
+
+    const parsedIngredients = JSON.parse(ingredients);
+
+    const data = {
+      name, price, description, categorie_id, ingredients, imageDishFilename, id
+    }
+
+    console.log(data);
+
+    // const ingredientsArray = ingredients.split(',');
+
+    const diskStorage = new DiskStorage();
+
+    const dish = await knex('dishes').where({ id });
+
+    console.log(dish)
+
+    if (imageDishFilename) {
+      var filename = await diskStorage.saveFile(imageDishFilename);
+      // Continuar com o código aqui...
+    } else {
+      // Tratar o caso em que imageDishFilename é undefined
+      console.error('O filename é undefined');
+      // Ou realizar outras ações apropriadas
+    }
+    
+
+    const ingredientsUpdate = parsedIngredients.map(ingredient => {
       return {
-        name: ingredient,
+        name: ingredient.name,
         user_id,
         dish_id: id
       };
@@ -64,10 +93,12 @@ class DishesController{
 
     (async function replaceIngredients() {
 
+      //exclusão de todos os ingredients
       await knex('ingredients')
           .where('dish_id', id)
           .del();
 
+      //inserção novamente
       await knex('ingredients')
       .insert(ingredientsUpdate);
 
@@ -76,9 +107,9 @@ class DishesController{
 
     await knex("dishes").update({
       name,
-      image,
+      image: filename,
       price,
-      categorie_id: categorie,
+      categorie_id,
       description,
     }).where({id});
 
@@ -113,9 +144,9 @@ class DishesController{
   //deletar dishes e ingredients em cascata
   async delete(request, response){
 
-    const {id} = request.params;
+    const { id } = request.params;
 
-    await knex("dishes").where({id}).delete();
+    await knex("dishes").where({ id }).delete();
 
     return response.json();
   }

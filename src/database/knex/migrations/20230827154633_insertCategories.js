@@ -1,3 +1,4 @@
+//when the app goes up the insert will be made
 exports.up = function(knex) {
   return knex("categories").insert([
     {name: "Salada"},
