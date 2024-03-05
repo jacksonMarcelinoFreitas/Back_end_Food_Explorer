@@ -43,44 +43,33 @@ class DishesController{
 
     await knex("ingredients").insert(ingredientsInsert);
 
+    const commonDish = {
+      dish_id,
+      user_id
+    }
+
+    await knex("create_common_dish").insert(commonDish);
+
     return response.status(201).json('Dish created with success!');
   }
 
   async update(request, response){
-
+    
     const { name, price, description, categorie_id, ingredients } = request.body;
-
-    const imageDishFilename = request.file?.filename
-
     const { id } = request.params;
     const { id: user_id } = request.user;
-
+    
+    const imageDishFilename = request.file?.filename
     const parsedIngredients = JSON.parse(ingredients);
-
-    const data = {
-      name, price, description, categorie_id, ingredients, imageDishFilename, id
-    }
-
-    console.log(data);
-
-    // const ingredientsArray = ingredients.split(',');
 
     const diskStorage = new DiskStorage();
 
-    const dish = await knex('dishes').where({ id });
-
-    console.log(dish)
-
     if (imageDishFilename) {
       var filename = await diskStorage.saveFile(imageDishFilename);
-      // Continuar com o código aqui...
     } else {
-      // Tratar o caso em que imageDishFilename é undefined
       console.error('O filename é undefined');
-      // Ou realizar outras ações apropriadas
     }
     
-
     const ingredientsUpdate = parsedIngredients.map(ingredient => {
       return {
         name: ingredient.name,
@@ -88,8 +77,6 @@ class DishesController{
         dish_id: id
       };
     });
-
-    console.log(ingredientsUpdate);
 
     (async function replaceIngredients() {
 
@@ -121,6 +108,7 @@ class DishesController{
     try {
 
       const { id } = request.params;
+      console.log(id);
 
       const dish = await knex("dishes").where({ id }).first();
 
@@ -154,48 +142,80 @@ class DishesController{
   //tras os pratos e seus ingrdientes para o usuário autenticado
   async index(request, response) {
 
-    const { name, ingredients } = request.query;
-
-    const user_id = request.user.id;
+    // const { nameDishOrIngredint } = request.query;
+    // const user_id = request.user.id;
 
     let dishes;
 
-    if (ingredients) {
-      console.log(ingredients)
-      const filterIngredients = ingredients.split(',').map(tag => tag.trim());
+    // dishes = await knex("dishes").where("user_id", user_id).join("create_common_dish");
 
-      dishes = await knex("ingredients")
-        .select([
-          "dishes.id",
-          "dishes.name",
-          "dishes.user_id"
-        ])
-        .where("dishes.user_id", user_id)
-        .whereLike("dishes.name", `%${name}`)
-        .whereIn("ingredients.name", filterIngredients)
-        .innerJoin("dishes", "dishes.id", "ingredients.dish_id")
-        .orderBy("dishes.name", "asc")
-    } else {
-      dishes = await knex("dishes")
-        .where({ user_id })
-        .whereLike("name", `%${name}`)
-        .orderBy("name", "asc");
-    }
+    dishes = await knex('dishes')
+    .join('create_common_dish', 'dishes.id', '=', 'create_common_dish.dish_id')
+    .select(
+        'dishes.id', 
+        'dishes.name', 
+        'dishes.image', 
+        'dishes.price', 
+        'dishes.description', 
+        'dishes.categorie_id', 
+        'create_common_dish.isLiked', 
+        'create_common_dish.orders' 
+    )
+    // .where('dishes.id', '=', 'create_common_dish.user_id')
+  
 
-    const userIngredients = await knex("ingredients").where({user_id});
-    const ingredientsWithDishes = dishes.map(dish => {
-      const dishIngredients = userIngredients.filter(
-        ingredient => ingredient.dish_id === dish.id
-      );
-      return{
-        ...dishes,
-        ingredients: dishIngredients
-      }
-    } );
+    // .select([
+    //   "dishes.id",
+    //   "dishes.name",
+    //   "dishes.description",
+    //   "dishes.price",
+    //   "dishes.image",
+    //   "dishes.categorie_id"
+    // ])
+    // .where("dishes.user_id", user_id)
 
-    return response.json(ingredientsWithDishes);
+    // if (ingredient) {
+    //   // console.log(ingredients)
+    //   const filterIngredients = ingredient.split(',').map(tag => tag.trim());
+
+    //   dishes = await knex("ingredients")
+    //     .select([
+    //       "dishes.id",
+    //       "dishes.name",
+    //       "dishes.user_id"
+    //     ])
+    //     .where("dishes.user_id", user_id)
+    //     .whereLike("dishes.name", `%${name}`)
+    //     .whereIn("ingredients.name", filterIngredients)
+    //     .innerJoin("dishes", "dishes.id", "ingredients.dish_id")
+    //     .orderBy("dishes.name", "asc")
+    // } else {
+    //   dishes = await knex("dishes")
+    //     .where({ user_id })
+    //     .whereLike("name", `%${name}`)
+    //     .orderBy("name", "asc");
+    // }
+
+    // const userIngredients = await knex("ingredients").where({user_id});
+    
+    // const ingredientsWithDishes = dishes.map(dish => {
+    //   const dishIngredients = userIngredients.filter(
+    //     ingredient => ingredient.dish_id === dish.id
+    //   );
+    //   return{
+    //     ...dishes,
+    //     ingredients: dishIngredients
+    //   }
+    // } );
+
+    console.log(dishes)
+
+    return response.json(dishes);
   }
 
 }
 
 module.exports = DishesController;
+
+// quero que faca a busca pelo prato independente do filtro
+// quuuero que o filtro retorne uma consulta especifica
