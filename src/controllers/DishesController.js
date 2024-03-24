@@ -106,11 +106,24 @@ class DishesController{
   //método para mostrar um dish somente e seus ingredientes
   async show(request, response){
     try {
-
       const { id } = request.params;
-      console.log(id);
 
-      const dish = await knex("dishes").where({ id }).first();
+      // const dish = await knex("dishes").where({ id }).first();
+
+      const dish = await knex('create_common_dish as a')
+      .select(
+        'a.id',
+        'a.orders',
+        'a.dish_id',
+        'b.name',
+        'b.image',
+        'b.price',
+        'b.categorie_id',
+        'b.description'
+      )
+      .innerJoin('dishes as b', 'a.dish_id', 'b.id')
+      .where('b.id', id)
+      .first();
 
       if (!dish) {
           return response.status(404).json({ error: "Dish not found" });
@@ -118,15 +131,19 @@ class DishesController{
 
       const ingredients = await knex("ingredients").where({ dish_id: id }).orderBy("name");
 
+      console.log(dish)
+
       return response.json({
           dish,
           ingredients
       });
 
+      
     } catch (error) {
-        console.error(error);
-        return response.status(500).json({ error: "Internal Server Error" });
+      console.error(error);
+      return response.status(500).json({ error: "Internal Server Error" });
     }
+
   }
 
   //deletar dishes e ingredients em cascata
@@ -140,7 +157,7 @@ class DishesController{
   }
 
   //tras os pratos e seus ingrdientes para o usuário autenticado
-  async index(request, response) {
+  async index(request, response) {  
 
     // const { nameDishOrIngredint } = request.query;
     // const user_id = request.user.id;
@@ -207,8 +224,6 @@ class DishesController{
     //     ingredients: dishIngredients
     //   }
     // } );
-
-    console.log(dishes)
 
     return response.json(dishes);
   }

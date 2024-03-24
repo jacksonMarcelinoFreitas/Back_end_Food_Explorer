@@ -7,7 +7,11 @@ const commonDishesOrdersController = new CommonDishesOrdersController();
 
 commonDishesOrdersRoutes.use(ensureAuthenticated);
 
-commonDishesOrdersRoutes.put("/:dish_id", commonDishesOrdersController.update);
+commonDishesOrdersRoutes.put("/orders", commonDishesOrdersController.update);
+commonDishesOrdersRoutes.get("/orders", commonDishesOrdersController.indexOrder);
+commonDishesOrdersRoutes.get("/orders/dishes", commonDishesOrdersController.indexOrderDishes);
+
+// commonDishesOrdersRoutes.update("/orders", commonDishesOrdersController.indexOrderDishes);
 
 //exporta
 module.exports = commonDishesOrdersRoutes;
