@@ -3,7 +3,6 @@ const knex = require("../database/knex");
 class DishesController{
 
   async update(request, response){
-    
     const { amountOrder, isLiked, dish_id } = request.body;
     const { id: user_id } = request.user;
 
@@ -86,7 +85,6 @@ class DishesController{
     const { id: user_id } = request.user;
 
     const sumOrders = await knex("create_common_dish").sum("orders").where({ user_id });
-    
     const totalOrders = sumOrders[0]["sum(`orders`)"];
 
     return response.json(totalOrders);
@@ -128,6 +126,5 @@ class DishesController{
   }
 
 }
-
 
 module.exports = DishesController;

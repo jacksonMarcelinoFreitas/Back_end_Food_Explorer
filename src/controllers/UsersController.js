@@ -30,7 +30,6 @@ class UsersController {
 
   }
 
-
   async index(request, response){
     const database = await sqliteConnection();
 

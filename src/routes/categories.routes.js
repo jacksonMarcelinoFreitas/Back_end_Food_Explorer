@@ -1,6 +1,6 @@
-const CategoriesController = require('../controllers/CategoriesController');
-const ensureAuthenticated = require('../middlewares/ensureAuthenticated');
 const Router = require('express');
+const ensureAuthenticated = require('../middlewares/ensureAuthenticated');
+const CategoriesController = require('../controllers/CategoriesController');
 
 const categoriesRoutes = Router();
 const categoriesController = new CategoriesController();

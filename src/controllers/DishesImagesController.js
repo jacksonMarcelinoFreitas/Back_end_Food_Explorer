@@ -11,11 +11,9 @@ class DishesImagesController {
 
     const diskStorage = new DiskStorage();
 
-    //busca pelo prato
     const dish = await knex("dishes")
       .where(id).first();
 
-    // busca pelo usuário para autenticar
     const user = await knex("users")
       .where({id: user_id}).first();
 

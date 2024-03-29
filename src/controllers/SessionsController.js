@@ -9,14 +9,14 @@ class SessionsController {
     try{
       const { email, password } = request.body;
 
-      //buscando todos os dados do usuário
-      const user = await knex("users").where({ email }).first();
+      const user = await knex("users")
+      .where({ email })
+      .first();
 
       if(!user){
         throw new AppError("E-mail e/ou senha incorreta", 401);
       }
 
-      //comparando senhas
       const passwordMatched = await compare(password, user.password);
 
       if(!passwordMatched){
@@ -25,7 +25,6 @@ class SessionsController {
 
       const { secret, expiresIn } = authConfig.jwt;
 
-      //criar o token
       const token = sign({}, secret, {
         subject: String(user.id),
         expiresIn

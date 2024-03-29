@@ -41,41 +41,43 @@ const PORT = 3333;
 app.listen(PORT, () => console.log(`Server is running on Port ${PORT}`));
 
 
-// -- GET
-//ROUTE PARAMS
-// -- exige os parametros na rota
-// -- rota só é reconhecida com os parâmetros
-// -- localhost:3333/message/5/Jackson
+/*
+-- GET
+  ROUTE PARAMS
+  -- exige os parametros na rota
+  -- rota só é reconhecida com os parâmetros
+  -- localhost:3333/message/5/Jackson
 
-// app.get('/message/:id/:user', (request, response) => {
-//   const {id, user} = request.params;
-//   response.send(`Id da mesnsagem : ${id} Para o usuário ${user}`);
-// });
+  app.get('/message/:id/:user', (request, response) => {
+    const {id, user} = request.params;
+    response.send(`Id da mesnsagem : ${id} Para o usuário ${user}`);
+  });
 
-//QUERY PARAMS
-// -- parâmetros ficam opcionais
-// -- existência da rota independe dos parâmetros
-// -- localhost:3333/message/user?page=5&limit=10
+QUERY PARAMS
+  -- parâmetros ficam opcionais
+  -- existência da rota independe dos parâmetros
+  -- localhost:3333/message/user?page=5&limit=10
 
-// app.get('/message/user', (request, response) => {
-//   const {page, limit} = request.query;
-//   response.send(`Id da pagina : ${page} Com limite de ${limit} paginas!`);
-// });
+  app.get('/message/user', (request, response) => {
+    const {page, limit} = request.query;
+    response.send(`Id da pagina : ${page} Com limite de ${limit} paginas!`);
+  });
 
 
-// -- POST
+-- POST
+  -- os valores vem pelo body
+  -- response como HTML
+  app.post('/user', (request, response) => {
+    const {user, age, graduate} = request.body;
 
-// -- os valores vem pelo body
-// -- response como HTML
-// app.post('/user', (request, response) => {
-//   const {user, age, graduate} = request.body;
+    response.send(`Seja bem vindo ${user}. Voce tem ${age} e estuda ${graduate}!`);
+  });
 
-//   response.send(`Seja bem vindo ${user}. Voce tem ${age} e estuda ${graduate}!`);
-// });
+  -- response como JSON
+  app.post('/user', (request, response) => {
+    const {user, age, graduate} = request.body;
 
-// -- response como JSON
-// app.post('/user', (request, response) => {
-//   const {user, age, graduate} = request.body;
+    response.json({user, age, graduate});
+  });
 
-//   response.json({user, age, graduate});
-// });
+*/
