@@ -4,7 +4,6 @@ class DishesController{
 
   async update(request, response){
     const { amountOrder, isLiked, dish_id } = request.body;
-    const { id: user_id } = request.user;
 
     if(amountOrder === null){
       await updateWithoutAmountNumber();
@@ -20,7 +19,7 @@ class DishesController{
         let { orders }  = await knex
         .select('orders')
         .from('create_common_dish')
-        .where({ dish_id, user_id })  
+        .where({ dish_id })  
         .first();
 
         if(orders != 0){
@@ -28,7 +27,7 @@ class DishesController{
 
           await knex("create_common_dish")
             .update({ orders })
-            .where({ dish_id, user_id })
+            .where({ dish_id })
         }
         
       } catch (error) {
@@ -43,7 +42,7 @@ class DishesController{
 
         await knex("create_common_dish")
           .update({ orders: amountOrder, isLiked})
-          .where({ dish_id, user_id });
+          .where({ dish_id });
 
       } catch (error) {
 
@@ -55,7 +54,6 @@ class DishesController{
 
     let amountOrders = await knex("create_common_dish")
       .sum("orders")
-      .where({ user_id });
 
     amountOrders = amountOrders[0]["sum(`orders`)"];
   
@@ -69,7 +67,6 @@ class DishesController{
         'b.image',
         'b.price')
       .innerJoin('dishes as b', 'a.dish_id', 'b.id')
-      .where('a.user_id', user_id)
       .where('a.orders', '>', 0);
   
 
@@ -82,17 +79,14 @@ class DishesController{
   }
 
   async indexOrder(request, response){
-    const { id: user_id } = request.user;
-
-    const sumOrders = await knex("create_common_dish").sum("orders").where({ user_id });
+    const sumOrders = await knex("create_common_dish").sum("orders") //.where({ user_id });
     const totalOrders = sumOrders[0]["sum(`orders`)"];
 
     return response.json(totalOrders);
   }
 
   async indexOrderDishes(request, response){
-    const { id: user_id } = request.user;
-
+    
     //seleção dos pratos do usuário que possuem pedidos
     const orderDishes = await knex('create_common_dish as a')
       .select(
@@ -103,7 +97,6 @@ class DishesController{
         'b.image',
         'b.price')
       .innerJoin('dishes as b', 'a.dish_id', 'b.id')
-      .where('a.user_id', user_id)
       .where('a.orders', '>', 0);
 
     //seleção da soma dos pedidos

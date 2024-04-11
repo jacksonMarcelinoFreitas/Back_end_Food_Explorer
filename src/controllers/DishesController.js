@@ -129,8 +129,6 @@ class DishesController{
 
       const ingredients = await knex("ingredients").where({ dish_id: id }).orderBy("name");
 
-      console.log(dish)
-
       return response.json({
           dish,
           ingredients
@@ -146,10 +144,11 @@ class DishesController{
 
   //deletar dishes e ingredients em cascata
   async delete(request, response){
-
     const { id } = request.params;
 
     await knex("dishes").where({ id }).delete();
+
+    console.log('Deletado');
 
     return response.json();
   }
@@ -157,10 +156,6 @@ class DishesController{
   //tras os pratos e seus ingrdientes para o usuário autenticado
   async index(request, response) { 
     const { name } = request.query; 
-    const user_id = request.user.id;
-
-    console.log(name)
-    console.log(user_id)
 
     let dishes;
   
@@ -177,13 +172,12 @@ class DishesController{
       'b.id as ingredient_id', 
       'b.name as ingredient_name'
     )
-    .where('a.user_id', user_id)
     .where(function() {
       this.where('a.name', 'like', `%${name}%`)
         .orWhere('b.name', 'like', `%${name}%`);
     })
-    .innerJoin('ingredients as b', 'a.id', 'b.dish_id')
-    .innerJoin('create_common_dish as c', 'a.id', 'c.dish_id')
+    .leftJoin('ingredients as b', 'a.id', 'b.dish_id')
+    .leftJoin('create_common_dish as c', 'a.id', 'c.dish_id')
 
     function removeDuplicates(arr) {
       const seen = new Set();
